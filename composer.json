@@ -1,0 +1,13 @@
+{
+  "name": "thunbolt/composer-installer",
+  "type": "composer-plugin",
+  "autoload": {
+    "classmap": ["src/"]
+  },
+  "extra": {
+    "class": "Thunbolt\\Composer\\ComposerPlugin"
+  },
+  "require": {
+    "composer-plugin-api": "^1.0"
+  }
+}
