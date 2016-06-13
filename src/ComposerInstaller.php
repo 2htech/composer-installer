@@ -61,6 +61,7 @@ class ComposerInstaller extends LibraryInstaller {
 		$this->filesystem->ensureDirectoryExists(self::PATHS['appDir']);
 		$this->filesystem->ensureDirectoryExists(self::PATHS['resourceDir']);
 		$this->filesystem->ensureDirectoryExists(self::PATHS['cfgDir']);
+		$this->filesystem->ensureDirectoryExists(self::PATHS['binDir'] . '/loaders');
 
 		$this->jsonData = file_exists(self::PATHS['resourceFile']) ? json_decode(file_get_contents(self::PATHS['resourceFile']), TRUE) : array();
 		if (!array_key_exists('assets', $this->jsonData)) {
