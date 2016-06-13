@@ -62,7 +62,7 @@ class ComposerInstaller extends LibraryInstaller {
 		$this->filesystem->ensureDirectoryExists(self::PATHS['resourceDir']);
 		$this->filesystem->ensureDirectoryExists(self::PATHS['cfgDir']);
 
-		$this->jsonData = file_exists(self::PATHS['resourceFile'] ? json_decode(file_get_contents(self::PATHS['resourceFile']), TRUE) : array();
+		$this->jsonData = file_exists(self::PATHS['resourceFile']) ? json_decode(file_get_contents(self::PATHS['resourceFile']), TRUE) : array();
 		if (!array_key_exists('assets', $this->jsonData)) {
 			$this->jsonData['assets'] = [];
 		}
@@ -292,7 +292,7 @@ class ComposerInstaller extends LibraryInstaller {
 				$this->filesystem->ensureDirectoryExists(dirname($target));
 				copy($target, $rowPath);
 			}
-			$this->jsonData['assets'][$package->getName()][$type][] = $baseDir;
+			$this->jsonData['assets'][$package->getName()][$type][] = $target;
 		}
 
 	}
