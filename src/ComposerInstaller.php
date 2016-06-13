@@ -17,12 +17,12 @@ class ComposerInstaller extends LibraryInstaller {
 		'wwwDir' => 'www',
 		'binDir' => 'bin',
 		'insDir' => 'ins',
-		'cfgDir' => self::PATHS['appDir'] . '/config',
-		'modDir' => self::PATHS['appDir'] . '/modules',
-		'resourceFile' => self::PATHS['appDir'] . '/config/composer.json',
-		'resourceDir' => self::PATHS['wwwDir'] . '/ins-assets',
-		'binConfigs' => self::PATHS['bin'] . '/config.json',
-		'templateLoader' => self::PATHS['bin'] . '/loaders/template.json'
+		'cfgDir' => 'app/config',
+		'modDir' => 'app/modules',
+		'resourceFile' => 'app/config/composer.json',
+		'resourceDir' => 'www/ins-assets',
+		'binConfigs' => 'bin/config.json',
+		'templateLoader' => 'bin/loaders/template.json'
 	];
 
 	/** @var array */
