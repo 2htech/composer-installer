@@ -64,9 +64,6 @@ class ComposerInstaller extends LibraryInstaller {
 		$this->filesystem->ensureDirectoryExists(self::PATHS['binDir'] . '/loaders');
 
 		$this->jsonData = file_exists(self::PATHS['resourceFile']) ? json_decode(file_get_contents(self::PATHS['resourceFile']), TRUE) : array();
-		if (!array_key_exists('assets', $this->jsonData)) {
-			$this->jsonData['assets'] = [];
-		}
 		if (!array_key_exists('configs', $this->jsonData)) {
 			$this->jsonData['configs'] = [];
 		}
@@ -213,17 +210,13 @@ class ComposerInstaller extends LibraryInstaller {
 
 	/**
 	 * extra: {
-	 * 		"assets": {
-	 *			"css": ["file.css"]
-	 * 			"js": ["file.js"],
-	 * 			"other": ["image.png"]
-	 * 		}
+	 * 		"assets": ["file.css", "file.js", "file.png"]
 	 * }
 	 * {@inheritDoc}
 	 */
 	protected function uninstallAssets(PackageInterface $package) {
 		$extra = $package->getExtra();
-		if (!isset($extra['assets']['css']) && !isset($extra['assets']['js']) && !isset($extra['assets']['other'])) {
+		if (!isset($extra['assets'])) {
 			return;
 		}
 
@@ -232,19 +225,11 @@ class ComposerInstaller extends LibraryInstaller {
 
 	/**
 	 * extra: {
-	 * 		"assets": {
-	 *			"css": ["file.css"]
-	 * 			"js": ["file.js"],
-	 * 			"other": ["image.png"]
-	 * 		}
+	 * 		"assets": ["file.css", "file.js", "file.png"]
 	 * }
 	 * {@inheritDoc}
 	 */
 	protected function removeAssets(PackageInterface $package, array $extra) {
-		if (!isset($this->jsonData['assets'][$package->getName()]) || !is_array($this->jsonData['assets'][$package->getName()])) {
-			return;
-		}
-
 		$target = self::PATHS['resourceDir'] . '/' . str_replace('/', '_', $package->getName());
 		$this->filesystem->removeDirectoryPhp($target);
 
@@ -253,49 +238,28 @@ class ComposerInstaller extends LibraryInstaller {
 
 	/**
 	 * extra: {
-	 * 		"assets": {
-	 *			"css": ["file.css"]
-	 * 			"js": ["file.js"],
-	 * 			"other": ["image.png"]
-	 * 		}
+	 * 		"assets": ["file.css", "file.js", "file.png"]
 	 * }
 	 * {@inheritDoc}
 	 */
 	protected function installAssets(PackageInterface $package) {
 		$extra = $package->getExtra();
-		if (!isset($extra['assets']['css']) && !isset($extra['assets']['js'])) {
+		if (!isset($extra['assets'])) {
 			return;
 		}
 
-		$this->copyAssets('css', $package, $extra['assets']);
-		$this->copyAssets('js', $package, $extra['assets']);
-		$this->copyAssets('other', $package, $extra['assets']);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	protected function copyAssets($type, PackageInterface $package, array $extra) {
-		if (!isset($extra[$type])) {
-			return;
-		}
-
-		$this->jsonData['assets'][$package->getName()][$type] = [];
-
-		foreach ((array) $extra[$type] as $row) {
+		foreach ((array) $extra['assets'] as $row) {
 			$rowPath = $this->getInstallPath($package) . '/' . $row;
 			if (!file_exists($rowPath)) {
 				$this->io->write("<warning>Skipped installation of '$row' for package " . $package->getName() . " file not found in package.</warning>");
 				continue;
 			}
-			$target = self::PATHS['resourceDir'] . '/' . str_replace('/', '_', $package->getName()) . '/' . $type . '/' . basename($row);
+			$target = self::PATHS['resourceDir'] . '/' . str_replace('/', '_', $package->getName()) . '/' . basename($row);
 			if (!file_exists($target)) {
 				$this->filesystem->ensureDirectoryExists(dirname($target));
 				copy($target, $rowPath);
 			}
-			$this->jsonData['assets'][$package->getName()][$type][] = $target;
 		}
-
 	}
 
 	/**
