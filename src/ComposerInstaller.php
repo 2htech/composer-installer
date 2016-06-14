@@ -182,7 +182,7 @@ class ComposerInstaller extends LibraryInstaller {
 
 		foreach ($extra['configs'] as $config) {
 			if (file_exists($this->getInstallPath($package) . '/' . $config)) {
-				$this->jsonData['configs'] = $this->getInstallPath($package) . '/' . $config;
+				$this->jsonData['configs'][] = $this->getInstallPath($package) . '/' . $config;
 			} else {
 				$this->io->write("<warning>Skipped installation of '$config' for package " . $package->getName() . " file not found in package.</warning>");
 			}
