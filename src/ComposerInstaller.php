@@ -76,6 +76,10 @@ class ComposerInstaller extends LibraryInstaller {
 	 */
 	protected function finish() {
 		array_unique($this->jsonData['assets']);
+		array_values($this->jsonData['assets']); // Reset keys
+		array_unique($this->jsonData['configs']);
+		array_values($this->jsonData['configs']); // Reset keys
+
 		file_put_contents(self::PATHS['resourceFile'], json_encode($this->jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 		file_put_contents(self::PATHS['templateLoader'], json_encode($this->templateLoaderData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
