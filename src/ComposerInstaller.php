@@ -37,9 +37,6 @@ class ComposerInstaller extends LibraryInstaller {
 	/** @var array */
 	protected $jsonData = array();
 
-	/** @var array */
-	protected $templateLoaderData = array();
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -73,8 +70,6 @@ class ComposerInstaller extends LibraryInstaller {
 		if (!array_key_exists('assets', $this->jsonData)) {
 			$this->jsonData['assets'] = [];
 		}
-
-		$this->templateLoaderData = file_exists(self::PATHS['templateLoader']) ? json_decode(file_get_contents(self::PATHS['templateLoader']), TRUE) : array();
 	}
 
 	/**
@@ -87,7 +82,6 @@ class ComposerInstaller extends LibraryInstaller {
 		array_values($this->jsonData['configs']); // Reset keys
 
 		file_put_contents(self::PATHS['resourceFile'], json_encode($this->jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-		file_put_contents(self::PATHS['templateLoader'], json_encode($this->templateLoaderData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
 
 	/**
