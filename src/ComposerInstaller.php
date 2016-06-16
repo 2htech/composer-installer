@@ -48,7 +48,7 @@ class ComposerInstaller extends LibraryInstaller {
 		$extra = $package->getExtra();
 
 		if ($type === 'thunbolt-bin') {
-			return $this->types[$type];
+			return $this->types[$type] . '/' . isset($extra['packageName']) ? $extra['packageName'] : $package->getPrettyName();
 		}
 		if ($type === 'thunbolt-package' && isset($extra['packageName'])) {
 			return $this->types[$type] . '/' . $extra['packageName'];
