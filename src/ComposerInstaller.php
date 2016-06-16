@@ -16,22 +16,22 @@ class ComposerInstaller extends LibraryInstaller {
 		'appDir' => 'app',
 		'wwwDir' => 'www',
 		'binDir' => 'bin',
-		'insDir' => 'ins',
+		'insDir' => 'mod',
 		'cfgDir' => 'app/config',
 		'modDir' => 'app/modules',
 		'resourceFile' => 'app/config/composer.json',
-		'resourceDir' => 'www/ins-assets',
+		'resourceDir' => 'www/mod-assets',
 		'binConfigs' => 'bin/config.json',
 		'templateLoader' => 'bin/loaders/template.json'
 	];
 
 	/** @var array */
 	private $types = array(
-		"thunbolt-module" => "ins/modules",
+		"thunbolt-module" => "mod/modules",
 		"thunbolt-bin" => "bin",
-		"thunbolt-component" => "ins/components",
-		"thunbolt-package" => "ins/packages",
-		"thunbolt-command" => "ins/commands"
+		"thunbolt-component" => "mod/components",
+		"thunbolt-package" => "mod/packages",
+		"thunbolt-command" => "mod/commands"
 	);
 
 	/** @var array */
