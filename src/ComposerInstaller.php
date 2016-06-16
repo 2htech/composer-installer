@@ -67,6 +67,9 @@ class ComposerInstaller extends LibraryInstaller {
 		if (!array_key_exists('configs', $this->jsonData)) {
 			$this->jsonData['configs'] = [];
 		}
+		if (!array_key_exists('assets', $this->jsonData)) {
+			$this->jsonData['assets'] = [];
+		}
 
 		$this->templateLoaderData = file_exists(self::PATHS['templateLoader']) ? json_decode(file_get_contents(self::PATHS['templateLoader']), TRUE) : array();
 	}
