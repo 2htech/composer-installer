@@ -132,9 +132,7 @@ class ComposerInstaller extends LibraryInstaller {
 	/**
 	 * Only for "type": "thunbolt-bin"
 	 * extra: {
-	 * 		"config": {
-	 * 			"directory" => ["dir/config.neon"]
-	 * 		},
+	 * 		"config": ["config.json"],
 	 * 		"bin": ["dir/bin.bat"]
 	 * }
 	 * {@inheritDoc}
@@ -146,16 +144,14 @@ class ComposerInstaller extends LibraryInstaller {
 		}
 
 		if (isset($extra['config'])) {
-			foreach ((array) $extra['config'] as $directory => $configs) {
-				foreach ($configs as $config) {
-					if (!file_exists($this->getInstallPath($package) . '/' . $config)) {
-						$this->io->write("<warning>Skipped installation of '$config' for package " . $package->getName() . " file not found in package.</warning>");
-					}
+			foreach ((array) $extra['config'] as $config) {
+				$this->filesystem->ensureDirectoryExists(self::PATHS['binDir'] . '/config');
+				if (!file_exists($this->getInstallPath($package) . '/' . $config)) {
+					$this->io->write("<warning>Skipped installation of '$config' for package " . $package->getName() . " file not found in package.</warning>");
+				}
 
-					$this->filesystem->ensureDirectoryExists(self::PATHS['binDir'] . '/config/' . $directory);
-					if (!copy($this->getInstallPath($package) . '/' . $config, self::PATHS['binDir'] . '/config/' . $directory . '/' . basename($config))) {
-						$this->io->write("<warning>Skipped installation of '$config' for package " . $package->getName() . " file cannot copy to target directory.</warning>");
-					}
+				if (!copy($this->getInstallPath($package) . '/' . $config, self::PATHS['binDir'] . '/config/' . basename($config))) {
+					$this->io->write("<warning>Skipped installation of '$config' for package " . $package->getName() . " file cannot copy to target directory.</warning>");
 				}
 			}
 		}
@@ -175,9 +171,7 @@ class ComposerInstaller extends LibraryInstaller {
 	/**
 	 * Only for "type": "thunbolt-bin"
 	 * extra: {
-	 * 		"config": {
-	 * 			"directory" => ["dir/config.neon"]
-	 * 		},
+	 * 		"config": ["dir/config.json"],
 	 * 		"bin": ["dir/bin.bat"]
 	 * }
 	 * {@inheritDoc}
@@ -189,13 +183,11 @@ class ComposerInstaller extends LibraryInstaller {
 		}
 
 		if (isset($extra['config'])) {
-			foreach ($extra['config'] as $directory => $configs) {
-				foreach ($configs as $config) {
-					if (file_exists($path = self::PATHS['binDir'] . '/' . $directory . '/' . basename($config))) {
-						$this->filesystem->unlink($path);
-						if ($this->filesystem->isDirEmpty(dirname($path))) {
-							$this->filesystem->removeDirectory(dirname($path));
-						}
+			foreach ($extra['config'] as $config) {
+				if (file_exists($path = self::PATHS['binDir'] . '/' . basename($config))) {
+					$this->filesystem->unlink($path);
+					if ($this->filesystem->isDirEmpty(dirname($path))) {
+						$this->filesystem->removeDirectory(dirname($path));
 					}
 				}
 			}
