@@ -45,7 +45,7 @@ class ComposerInstaller extends LibraryInstaller {
 		$extra = $package->getExtra();
 
 		if ($type === 'thunbolt-bin') {
-			return $this->types[$type] . '/' . isset($extra['packageName']) ? $extra['packageName'] : $package->getPrettyName();
+			return $this->types[$type] . '/' . (isset($extra['packageName']) ? $extra['packageName'] : $package->getPrettyName());
 		}
 		if ($type === 'thunbolt-package' && isset($extra['packageName'])) {
 			return $this->types[$type] . '/' . $extra['packageName'];
@@ -61,7 +61,6 @@ class ComposerInstaller extends LibraryInstaller {
 		$this->filesystem->ensureDirectoryExists(self::PATHS['appDir']);
 		$this->filesystem->ensureDirectoryExists(self::PATHS['resourceDir']);
 		$this->filesystem->ensureDirectoryExists(self::PATHS['cfgDir']);
-		$this->filesystem->ensureDirectoryExists(self::PATHS['binDir'] . '/loaders');
 
 		$this->jsonData = file_exists(self::PATHS['resourceFile']) ? json_decode(file_get_contents(self::PATHS['resourceFile']), TRUE) : array();
 		if (!array_key_exists('configs', $this->jsonData)) {
