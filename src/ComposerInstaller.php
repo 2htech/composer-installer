@@ -97,7 +97,7 @@ class ComposerInstaller extends LibraryInstaller {
 		parent::install($repo, $package);
 
 		$this->initialize();
-		$this->installTemplateLoader($package);
+		$this->installBin($package);
 		$this->installConfigs($package);
 		$this->installAssets($package);
 		$this->finish();
@@ -109,8 +109,8 @@ class ComposerInstaller extends LibraryInstaller {
 	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target) {
 		if ($this->isInstalled($repo, $initial)) {
 			$this->initialize();
-			$this->uninstallTemplateLoader($initial);
-			$this->installTemplateLoader($target);
+			$this->uninstallBin($initial);
+			$this->installBin($target);
 			$this->uninstallConfigs($initial);
 			$this->installConfigs($target);
 			$this->uninstallAssets($initial);
@@ -127,7 +127,7 @@ class ComposerInstaller extends LibraryInstaller {
 	public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package) {
 		if ($this->isInstalled($repo, $package)) {
 			$this->initialize();
-			$this->uninstallTemplateLoader($package);
+			$this->uninstallBin($package);
 			$this->uninstallConfigs($package);
 			$this->uninstallAssets($package);
 			$this->finish();
@@ -139,44 +139,80 @@ class ComposerInstaller extends LibraryInstaller {
 	/**
 	 * Only for "type": "thunbolt-bin"
 	 * extra: {
-	 * 		"configs": ["dir/config.neon"]
+	 * 		"config": {
+	 * 			"directory" => ["dir/config.neon"]
+	 * 		},
+	 * 		"bin": ["dir/bin.bat"]
 	 * }
 	 * {@inheritDoc}
 	 */
-	protected function installTemplateLoader(PackageInterface $package) {
+	protected function installBin(PackageInterface $package) {
 		$extra = $package->getExtra();
-		if ($package->getType() !== 'thunbolt-bin' && file_exists($this->getInstallPath($package) . '/composer.json')) {
-			unlink($this->getInstallPath($package) . '/composer.json');
-		}
-		if (!isset($extra['configs']) || $package->getType() !== 'thunbolt-bin') {
+		if ($package->getType() !== 'thunbolt-bin') {
 			return;
 		}
 
-		foreach ($extra['configs'] as $config) {
-			if (!file_exists($this->getInstallPath($package) . '/' . $config)) {
-				$this->io->write("<warning>Skipped installation of '$config' for package " . $package->getName() . " file not found in package.</warning>");
-			}
+		if (isset($extra['config'])) {
+			foreach ((array) $extra['config'] as $directory => $configs) {
+				foreach ($configs as $config) {
+					if (!file_exists($this->getInstallPath($package) . '/' . $config)) {
+						$this->io->write("<warning>Skipped installation of '$config' for package " . $package->getName() . " file not found in package.</warning>");
+					}
 
-			$this->templateLoaderData[] = $this->getInstallPath($package) . '/' . $config;
+					$this->filesystem->ensureDirectoryExists(self::PATHS['binDir'] . '/config/' . $directory);
+					if (!copy($this->getInstallPath($package) . '/' . $config, self::PATHS['binDir'] . '/config/' . $directory . '/' . basename($config))) {
+						$this->io->write("<warning>Skipped installation of '$config' for package " . $package->getName() . " file cannot copy to target directory.</warning>");
+					}
+				}
+			}
+		}
+		if (isset($extra['bin'])) {
+			foreach ((array) $extra['bin'] as $bin) {
+				if (!file_exists($this->getInstallPath($package) . '/' . $bin)) {
+					$this->io->write("<warning>Skipped installation of '$bin' for package " . $package->getName() . " file not found in package.</warning>");
+				}
+
+				if (!copy($this->getInstallPath($package) . '/' . $bin, self::PATHS['binDir'] . '/' . basename($bin))) {
+					$this->io->write("<warning>Skipped installation of '$bin' for package " . $package->getName() . " file cannot copy to target directory.</warning>");
+				}
+			}
 		}
 	}
 
 	/**
 	 * Only for "type": "thunbolt-bin"
 	 * extra: {
-	 * 		"configs": ["dir/config.neon"]
+	 * 		"config": {
+	 * 			"directory" => ["dir/config.neon"]
+	 * 		},
+	 * 		"bin": ["dir/bin.bat"]
 	 * }
 	 * {@inheritDoc}
 	 */
-	protected function uninstallTemplateLoader(PackageInterface $package) {
+	protected function uninstallBin(PackageInterface $package) {
 		$extra = $package->getExtra();
-		if (!isset($extra['configs']) || $package->getType() !== 'thunbolt-bin') {
+		if ($package->getType() !== 'thunbolt-bin') {
 			return;
 		}
 
-		foreach ($extra['configs'] as $config) {
-			if (($key = array_search($this->getInstallPath($package) . '/' . $config, $this->jsonData['configs'])) !== FALSE) {
-				unset($this->templateLoaderData['configs'][$key]);
+		if (isset($extra['config'])) {
+			foreach ($extra['config'] as $directory => $configs) {
+				foreach ($configs as $config) {
+					if (file_exists($path = self::PATHS['binDir'] . '/' . $directory . '/' . basename($config))) {
+						$this->filesystem->unlink($path);
+						if ($this->filesystem->isDirEmpty(dirname($path))) {
+							$this->filesystem->removeDirectory(dirname($path));
+						}
+					}
+				}
+			}
+		}
+
+		if (isset($extra['bin'])) {
+			foreach ($extra['bin'] as $bin) {
+				if (file_exists($path = self::PATHS['binDir'] . '/' . $bin)) {
+					$this->filesystem->unlink($path);
+				}
 			}
 		}
 	}
