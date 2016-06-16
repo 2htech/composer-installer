@@ -153,6 +153,9 @@ class ComposerInstaller extends LibraryInstaller {
 
 			$this->templateLoaderData[] = $this->getInstallPath($package) . '/' . $config;
 		}
+		if (file_exists($this->getInstallPath($package) . '/composer.json')) {
+			unlink($this->getInstallPath($package) . '/composer.json');
+		}
 	}
 
 	/**
