@@ -145,6 +145,9 @@ class ComposerInstaller extends LibraryInstaller {
 	 */
 	protected function installTemplateLoader(PackageInterface $package) {
 		$extra = $package->getExtra();
+		if ($package->getType() !== 'thunbolt-bin' && file_exists($this->getInstallPath($package) . '/composer.json')) {
+			unlink($this->getInstallPath($package) . '/composer.json');
+		}
 		if (!isset($extra['configs']) || $package->getType() !== 'thunbolt-bin') {
 			return;
 		}
@@ -155,9 +158,6 @@ class ComposerInstaller extends LibraryInstaller {
 			}
 
 			$this->templateLoaderData[] = $this->getInstallPath($package) . '/' . $config;
-		}
-		if (file_exists($this->getInstallPath($package) . '/composer.json')) {
-			unlink($this->getInstallPath($package) . '/composer.json');
 		}
 	}
 
