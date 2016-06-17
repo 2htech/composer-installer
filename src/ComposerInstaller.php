@@ -75,10 +75,10 @@ class ComposerInstaller extends LibraryInstaller {
 	 * {@inheritDoc}
 	 */
 	protected function finish() {
-		array_unique($this->jsonData['assets']);
-		array_values($this->jsonData['assets']); // Reset keys
-		array_unique($this->jsonData['configs']);
-		array_values($this->jsonData['configs']); // Reset keys
+		$this->jsonData['assets'] = array_unique($this->jsonData['assets']);
+		$this->jsonData['assets'] = array_values($this->jsonData['assets']); // Reset keys
+		$this->jsonData['configs'] = array_unique($this->jsonData['configs']);
+		$this->jsonData['configs'] = array_values($this->jsonData['configs']); // Reset keys
 
 		file_put_contents(self::PATHS['resourceFile'], json_encode($this->jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
