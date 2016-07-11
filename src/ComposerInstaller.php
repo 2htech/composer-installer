@@ -66,17 +66,12 @@ class ComposerInstaller extends LibraryInstaller {
 		if (!array_key_exists('configs', $this->jsonData)) {
 			$this->jsonData['configs'] = [];
 		}
-		if (!array_key_exists('assets', $this->jsonData)) {
-			$this->jsonData['assets'] = [];
-		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	protected function finish() {
-		$this->jsonData['assets'] = array_unique($this->jsonData['assets']);
-		$this->jsonData['assets'] = array_values($this->jsonData['assets']); // Reset keys
 		$this->jsonData['configs'] = array_unique($this->jsonData['configs']);
 		$this->jsonData['configs'] = array_values($this->jsonData['configs']); // Reset keys
 
@@ -266,8 +261,6 @@ class ComposerInstaller extends LibraryInstaller {
 	protected function removeAssets(PackageInterface $package, array $extra) {
 		$target = self::PATHS['resourceDir'] . '/' . str_replace('/', '_', $package->getName());
 		$this->filesystem->removeDirectoryPhp($target);
-
-		unset($this->jsonData['assets']);
 	}
 
 	/**
@@ -284,15 +277,37 @@ class ComposerInstaller extends LibraryInstaller {
 
 		foreach ((array) $extra['assets'] as $row) {
 			$rowPath = $this->getInstallPath($package) . '/' . $row;
-			if (!file_exists($rowPath)) {
-				$this->io->write("<warning>Skipped installation of '$row' for package " . $package->getName() . " file not found in package.</warning>");
-				continue;
+			if (strpos($rowPath, '*') !== FALSE) {
+				foreach (glob($rowPath) as $file) {
+					if (is_dir($file)) {
+						$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($file), \RecursiveIteratorIterator::SELF_FIRST);
+						$iterator->setMaxDepth(-1);
+
+						foreach ($iterator as $item) {
+							if (is_file($item)) {
+								$this->moveToTarget($package, $item);
+							}
+						}
+
+						continue;
+					}
+					$this->moveToTarget($package, $file);
+				}
+			} else {
+				$this->moveToTarget($package, $row);
 			}
-			$target = self::PATHS['resourceDir'] . '/' . str_replace('/', '_', $package->getName()) . '/' . basename($row);
-			if (!file_exists($target)) {
-				$this->filesystem->ensureDirectoryExists(dirname($target));
-				copy($target, $rowPath);
-			}
+		}
+	}
+
+	private function moveToTarget(PackageInterface $package, $absolutePath) {
+		if (!file_exists($absolutePath)) {
+			$this->io->write("<warning>Skipped installation of '$absolutePath' for package " . $package->getName() . " file not found in package.</warning>");
+			return;
+		}
+		$target = self::PATHS['resourceDir'] . '/' . str_replace('/', '_', $package->getName()) . '/' . ltrim(str_replace($this->getInstallPath($package), '', $absolutePath), '\\/');
+		if (!file_exists($target)) {
+			$this->filesystem->ensureDirectoryExists(dirname($target));
+			copy($absolutePath, $target);
 		}
 	}
 
