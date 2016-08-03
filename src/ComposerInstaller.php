@@ -67,6 +67,7 @@ class ComposerInstaller extends LibraryInstaller {
 
 		$this->initialize();
 		$this->installConfigs($package);
+		$this->uninstallAssets($package);
 		$this->installAssets($package);
 		$this->finish();
 	}
@@ -75,16 +76,17 @@ class ComposerInstaller extends LibraryInstaller {
 	 * {@inheritDoc}
 	 */
 	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target) {
+		$this->initialize();
 		if ($this->isInstalled($repo, $initial)) {
-			$this->initialize();
 			$this->uninstallConfigs($initial);
-			$this->installConfigs($target);
 			$this->uninstallAssets($initial);
-			$this->installAssets($target);
-			$this->finish();
 		}
 
 		parent::update($repo, $initial, $target);
+
+		$this->installConfigs($target);
+		$this->installAssets($target);
+		$this->finish();
 	}
 
 	/**
@@ -164,7 +166,9 @@ class ComposerInstaller extends LibraryInstaller {
 	 */
 	protected function removeAssets(PackageInterface $package, array $extra) {
 		$target = self::PATHS['resourceDir'] . '/' . $package->getName();
-		$this->filesystem->removeDirectoryPhp($target);
+		if (file_exists($target) && is_dir($target)) {
+			$this->filesystem->removeDirectoryPhp($target);
+		}
 	}
 
 	/**
