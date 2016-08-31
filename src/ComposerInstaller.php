@@ -12,22 +12,19 @@ use Composer\Util\Filesystem;
 
 class ComposerInstaller extends LibraryInstaller {
 
-	const PATHS = [
+	/** @var array */
+	private static $paths = [
 		'wwwDir' => 'www',
-		'modDir' => 'mod',
-		'resourceDir' => 'www/mod-assets',
-		'resourceFile' => 'mod/composer.json',
+		'plgDir' => 'plugins',
+		'resourceDir' => 'www/plugins',
 	];
 
 	/** @var array */
 	private $types = array(
-		"thunbolt-module" => "mod/modules",
-		"thunbolt-component" => "mod/components",
-		"thunbolt-package" => "mod/packages"
+		"thunbolt-bundle" => "plugins/bundles",
+		"thunbolt-component" => "plugins/components",
+		"thunbolt-package" => "plugins/packages"
 	);
-
-	/** @var array */
-	protected $jsonData = array();
 
 	/**
 	 * {@inheritDoc}
@@ -40,26 +37,14 @@ class ComposerInstaller extends LibraryInstaller {
 	 * {@inheritDoc}
 	 */
 	protected function initialize() {
-		$this->filesystem->ensureDirectoryExists(self::PATHS['modDir']);
-		$this->filesystem->ensureDirectoryExists(self::PATHS['resourceDir']);
-
-		$this->jsonData = file_exists(self::PATHS['resourceFile']) ? json_decode(file_get_contents(self::PATHS['resourceFile']), TRUE) : array();
-		if (!$this->jsonData) {
-			$this->jsonData = [];
-		}
-		if (!array_key_exists('configs', $this->jsonData)) {
-			$this->jsonData['configs'] = [];
-		}
+		$this->filesystem->ensureDirectoryExists(self::$paths['modDir']);
+		$this->filesystem->ensureDirectoryExists(self::$paths['resourceDir']);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	protected function finish() {
-		$this->jsonData['configs'] = array_unique($this->jsonData['configs']);
-		$this->jsonData['configs'] = array_values($this->jsonData['configs']); // Reset keys
-
-		file_put_contents(self::PATHS['resourceFile'], json_encode($this->jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
 
 	/**
@@ -69,7 +54,6 @@ class ComposerInstaller extends LibraryInstaller {
 		parent::install($repo, $package);
 
 		$this->initialize();
-		$this->installConfigs($package);
 		$this->uninstallAssets($package);
 		$this->installAssets($package);
 		$this->finish();
@@ -81,13 +65,11 @@ class ComposerInstaller extends LibraryInstaller {
 	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target) {
 		$this->initialize();
 		if ($this->isInstalled($repo, $initial)) {
-			$this->uninstallConfigs($initial);
 			$this->uninstallAssets($initial);
 		}
 
 		parent::update($repo, $initial, $target);
 
-		$this->installConfigs($target);
 		$this->installAssets($target);
 		$this->finish();
 	}
@@ -98,52 +80,11 @@ class ComposerInstaller extends LibraryInstaller {
 	public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package) {
 		if ($this->isInstalled($repo, $package)) {
 			$this->initialize();
-			$this->uninstallConfigs($package);
 			$this->uninstallAssets($package);
 			$this->finish();
 		}
 
 		parent::uninstall($repo, $package);
-	}
-
-	/**
-	 * extra: {
-	 * 		"configs": ["dir/config.neon"]
-	 * }
-	 * {@inheritDoc}
-	 */
-	protected function installConfigs(PackageInterface $package) {
-		$extra = $package->getExtra();
-		if (!isset($extra['configs'])) {
-			return;
-		}
-
-		foreach ($extra['configs'] as $config) {
-			if (file_exists($this->getInstallPath($package) . '/' . $config)) {
-				$this->jsonData['configs'][] = $this->getInstallPath($package) . '/' . $config;
-			} else {
-				$this->io->write("<warning>Skipped installation of '$config' for package " . $package->getName() . " file not found in package.</warning>");
-			}
-		}
-	}
-
-	/**
-	 * extra: {
-	 * 		"configs": ["dir/config.neon"]
-	 * }
-	 * {@inheritDoc}
-	 */
-	protected function uninstallConfigs(PackageInterface $package) {
-		$extra = $package->getExtra();
-		if (!isset($extra['configs'])) {
-			return;
-		}
-
-		foreach ($extra['configs'] as $config) {
-			if (($key = array_search($this->getInstallPath($package) . '/' . $config, $this->jsonData['configs'])) !== FALSE) {
-				unset($this->jsonData['configs'][$key]);
-			}
-		}
 	}
 
 	/**
@@ -168,7 +109,7 @@ class ComposerInstaller extends LibraryInstaller {
 	 * {@inheritDoc}
 	 */
 	protected function removeAssets(PackageInterface $package, array $extra) {
-		$target = self::PATHS['resourceDir'] . '/' . $package->getName();
+		$target = self::$paths['resourceDir'] . '/' . $package->getName();
 		if (file_exists($target) && is_dir($target)) {
 			$this->filesystem->removeDirectoryPhp($target);
 		}
@@ -215,7 +156,7 @@ class ComposerInstaller extends LibraryInstaller {
 			$this->io->write("<warning>Skipped installation of '$absolutePath' for package " . $package->getName() . " file not found in package.</warning>");
 			return;
 		}
-		$target = self::PATHS['resourceDir'] . '/' . $package->getName() . '/' . ltrim(str_replace($this->getInstallPath($package), '', $absolutePath), '\\/');
+		$target = self::$paths['resourceDir'] . '/' . $package->getName() . '/' . ltrim(str_replace($this->getInstallPath($package), '', $absolutePath), '\\/');
 		if (!file_exists($target)) {
 			$this->filesystem->ensureDirectoryExists(dirname($target));
 			copy($absolutePath, $target);
