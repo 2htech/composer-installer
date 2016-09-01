@@ -37,7 +37,7 @@ class ComposerInstaller extends LibraryInstaller {
 	 * {@inheritDoc}
 	 */
 	protected function initialize() {
-		$this->filesystem->ensureDirectoryExists(self::$paths['modDir']);
+		$this->filesystem->ensureDirectoryExists(self::$paths['plgDir']);
 		$this->filesystem->ensureDirectoryExists(self::$paths['resourceDir']);
 	}
 
