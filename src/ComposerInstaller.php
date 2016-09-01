@@ -12,9 +12,6 @@ use Composer\Util\Filesystem;
 
 class ComposerInstaller extends LibraryInstaller {
 
-	const PLG_DIR = 'plugins',
-		  PLG_RES_DIR = 'www/plugins';
-
 	/** @var array */
 	private static $paths = [
 		'wwwDir' => 'www',
