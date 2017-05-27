@@ -16,7 +16,7 @@ class ComposerInstaller extends LibraryInstaller {
 	private static $paths = [
 		'wwwDir' => 'www',
 		'plgDir' => 'plugins',
-		'resourceDir' => 'www/plg',
+		'resourceDir' => 'www/plugin-assets',
 	];
 
 	/** @var array */

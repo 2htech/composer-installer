@@ -4,8 +4,8 @@ namespace Thunbolt\Composer;
 
 class ComposerDirectories {
 
-	const PLG_DIR = 'plugins',
-		  PLG_RES_DIR = 'www/plugins',
-		  PLG_RES_REL_DIR = 'plg';
+	const PLUGIN_DIR = 'plugins',
+		  PLUGIN_ASSETS_PATH = 'www/plugins-assets',
+		  PLUGIN_ASSETS_DIR = 'plugins-assets';
 
 }
