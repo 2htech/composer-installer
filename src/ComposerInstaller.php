@@ -22,8 +22,7 @@ class ComposerInstaller extends LibraryInstaller {
 	/** @var array */
 	private $types = array(
 		"thunbolt-bundle" => "plugins/bundles",
-		"thunbolt-component" => "plugins/components",
-		"thunbolt-package" => "plugins/packages"
+		"thunbolt-component" => "plugins/components"
 	);
 
 	/**
