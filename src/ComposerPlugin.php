@@ -1,6 +1,6 @@
 <?php
 
-namespace Thunbolt\Composer;
+namespace App2h\Composer;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
