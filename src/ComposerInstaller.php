@@ -15,14 +15,15 @@ class ComposerInstaller extends LibraryInstaller {
 	/** @var array */
 	private static $paths = [
 		'wwwDir' => 'www',
-		'plgDir' => 'plugins',
+		'plgDir' => 'app/modules',
 		'resourceDir' => 'www/plugin-assets',
 	];
 
 	/** @var array */
 	private $types = array(
 		"thunbolt-bundle" => "plugins/bundles",
-		"thunbolt-component" => "plugins/components"
+		"thunbolt-component" => "plugins/components",
+		"2htech-module" => "app/modules"
 	);
 
 	/**
