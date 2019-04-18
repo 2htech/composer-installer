@@ -1,6 +1,6 @@
 <?php
 
-namespace Thunbolt\Composer;
+namespace App2h\Composer;
 
 use Composer\Package\PackageInterface;
 use Composer\Installer\LibraryInstaller;
@@ -15,15 +15,13 @@ class ComposerInstaller extends LibraryInstaller {
 	/** @var array */
 	private static $paths = [
 		'wwwDir' => 'www',
-		'plgDir' => 'app/modules',
-		'resourceDir' => 'www/plugin-assets',
+		'moduleDir' => 'app/modules',
+		'resourceDir' => 'www/module-assets',
 	];
 
 	/** @var array */
 	private $types = array(
-		"thunbolt-bundle" => "plugins/bundles",
-		"thunbolt-component" => "plugins/components",
-		"2htech-module" => "app/modules"
+		"app2h-module" => "app/modules"
 	);
 
 	/**
@@ -37,7 +35,7 @@ class ComposerInstaller extends LibraryInstaller {
 	 * {@inheritDoc}
 	 */
 	protected function initialize() {
-		$this->filesystem->ensureDirectoryExists(self::$paths['plgDir']);
+		$this->filesystem->ensureDirectoryExists(self::$paths['moduleDir']);
 		$this->filesystem->ensureDirectoryExists(self::$paths['resourceDir']);
 	}
 
