@@ -1,5 +1,5 @@
 {
-	"name": "thunbolt/composer-installer",
+	"name": "app2h/composer-installer",
 	"type": "composer-plugin",
 	"autoload": {
 		"classmap": ["src/"]
