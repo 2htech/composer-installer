@@ -1,11 +1,11 @@
 <?php
 
-namespace Thunbolt\Composer;
+namespace App2h\Composer;
 
 class ComposerDirectories {
 
-	const PLUGIN_DIR = 'modules',
-		PLUGIN_ASSETS_PATH = 'www/plugin-assets',
-		PLUGIN_ASSETS_DIR = 'plugin-assets';
+	const MODULE_DIR = 'modules',
+		MODULE_ASSETS_PATH = 'www/module-assets',
+		MODULE_ASSETS_DIR = 'module-assets';
 
 }
