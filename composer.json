@@ -5,7 +5,7 @@
 		"classmap": ["src/"]
 	},
 	"extra": {
-		"class": "Thunbolt\\Composer\\ComposerPlugin"
+		"class": "App2h\\Composer\\ComposerPlugin"
 	},
 	"require": {
 		"composer-plugin-api": "^1.0"
