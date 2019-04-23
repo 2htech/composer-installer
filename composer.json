@@ -1,5 +1,5 @@
 {
-	"name": "app2h/composer-installer",
+	"name": "2htech/composer-installer",
 	"type": "composer-plugin",
 	"autoload": {
 		"classmap": ["src/"]
