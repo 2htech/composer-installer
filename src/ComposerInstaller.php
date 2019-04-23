@@ -21,7 +21,7 @@ class ComposerInstaller extends LibraryInstaller {
 
 	/** @var array */
 	private $types = array(
-		"app2h-module" => "app/modules"
+		"2htech-module" => "app/modules"
 	);
 
 	/**
