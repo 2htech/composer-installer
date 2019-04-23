@@ -1,6 +1,6 @@
 <?php
 
-namespace App2htech\Composer;
+namespace App2h\Composer;
 
 class ComposerDirectories {
 
