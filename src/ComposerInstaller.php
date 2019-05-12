@@ -10,45 +10,58 @@ use Composer\Config;
 use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
 
-class ComposerInstaller extends LibraryInstaller {
+class ComposerInstaller extends LibraryInstaller
+{
+
 
 	/** @var array */
 	private static $paths = [
-		'wwwDir' => 'www',
-		'moduleDir' => 'app/modules',
+		'wwwDir'      => 'www',
+		'moduleDir'   => 'app/modules',
 		'resourceDir' => 'www/module-assets',
 	];
 
 	/** @var array */
-	private $types = array(
-		"2htech-module" => "app/modules"
-	);
+	private $types = [
+		"nette-module" => "app/modules"
+	];
+
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getInstallPath(PackageInterface $package) {
-		return $this->types[$package->getType()]. '/' . $package->getPrettyName();
+	public function getInstallPath(PackageInterface $package)
+	{
+		$packageName = explode('-', $package->getPrettyName());
+		$moduleName  = $packageName[2] . 'Module';
+
+		return $this->types[$package->getType()] . '/' . $moduleName;
 	}
 
+
 	/**
 	 * {@inheritDoc}
 	 */
-	protected function initialize() {
+	protected function initialize()
+	{
 		$this->filesystem->ensureDirectoryExists(self::$paths['moduleDir']);
 		$this->filesystem->ensureDirectoryExists(self::$paths['resourceDir']);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	protected function finish() {
-	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function install(InstalledRepositoryInterface $repo, PackageInterface $package) {
+	protected function finish()
+	{
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
+	{
 		parent::install($repo, $package);
 
 		$this->initialize();
@@ -57,10 +70,12 @@ class ComposerInstaller extends LibraryInstaller {
 		$this->finish();
 	}
 
+
 	/**
 	 * {@inheritDoc}
 	 */
-	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target) {
+	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
+	{
 		$this->initialize();
 		if ($this->isInstalled($repo, $initial)) {
 			$this->uninstallAssets($initial);
@@ -72,10 +87,12 @@ class ComposerInstaller extends LibraryInstaller {
 		$this->finish();
 	}
 
+
 	/**
 	 * {@inheritDoc}
 	 */
-	public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package) {
+	public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+	{
 		if ($this->isInstalled($repo, $package)) {
 			$this->initialize();
 			$this->uninstallAssets($package);
@@ -85,13 +102,15 @@ class ComposerInstaller extends LibraryInstaller {
 		parent::uninstall($repo, $package);
 	}
 
+
 	/**
 	 * extra: {
-	 * 		"assets": ["file.css", "file.js", "file.png"]
+	 *        "assets": ["file.css", "file.js", "file.png"]
 	 * }
 	 * {@inheritDoc}
 	 */
-	protected function uninstallAssets(PackageInterface $package) {
+	protected function uninstallAssets(PackageInterface $package)
+	{
 		$extra = $package->getExtra();
 		if (!isset($extra['assets'])) {
 			return;
@@ -100,34 +119,38 @@ class ComposerInstaller extends LibraryInstaller {
 		$this->removeAssets($package, $extra['assets']);
 	}
 
+
 	/**
 	 * extra: {
-	 * 		"assets": ["file.css", "file.js", "file.png"]
+	 *        "assets": ["file.css", "file.js", "file.png"]
 	 * }
 	 * {@inheritDoc}
 	 */
-	protected function removeAssets(PackageInterface $package, array $extra) {
+	protected function removeAssets(PackageInterface $package, array $extra)
+	{
 		$target = self::$paths['resourceDir'] . '/' . $package->getName();
 		if (file_exists($target) && is_dir($target)) {
 			$this->filesystem->removeDirectoryPhp($target);
 		}
 	}
 
+
 	/**
 	 * extra: {
-	 * 		"assets": ["file.css", "file.js", "file.png"]
+	 *        "assets": ["file.css", "file.js", "file.png"]
 	 * }
 	 * {@inheritDoc}
 	 */
-	protected function installAssets(PackageInterface $package) {
+	protected function installAssets(PackageInterface $package)
+	{
 		$extra = $package->getExtra();
 		if (!isset($extra['assets'])) {
 			return;
 		}
 
-		foreach ((array) $extra['assets'] as $row) {
+		foreach ((array)$extra['assets'] as $row) {
 			$rowPath = $this->getInstallPath($package) . '/' . $row;
-			if (strpos($rowPath, '*') !== FALSE) {
+			if (strpos($rowPath, '*') !== false) {
 				foreach (glob($rowPath) as $file) {
 					if (is_dir($file)) {
 						$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($file), \RecursiveIteratorIterator::SELF_FIRST);
@@ -143,15 +166,19 @@ class ComposerInstaller extends LibraryInstaller {
 					}
 					$this->moveToTarget($package, $file);
 				}
-			} else {
+			}
+			else {
 				$this->moveToTarget($package, $row);
 			}
 		}
 	}
 
-	private function moveToTarget(PackageInterface $package, $absolutePath) {
+
+	private function moveToTarget(PackageInterface $package, $absolutePath)
+	{
 		if (!file_exists($absolutePath)) {
 			$this->io->write("<warning>Skipped installation of '$absolutePath' for package " . $package->getName() . " file not found in package.</warning>");
+
 			return;
 		}
 		$target = self::$paths['resourceDir'] . '/' . $package->getName() . '/' . ltrim(str_replace($this->getInstallPath($package), '', $absolutePath), '\\/');
@@ -161,10 +188,12 @@ class ComposerInstaller extends LibraryInstaller {
 		}
 	}
 
+
 	/**
 	 * {@inheritDoc}
 	 */
-	public function supports($packageType) {
+	public function supports($packageType)
+	{
 		return isset($this->types[$packageType]);
 	}
 
