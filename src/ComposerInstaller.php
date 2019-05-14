@@ -33,7 +33,7 @@ class ComposerInstaller extends LibraryInstaller
 	public function getInstallPath(PackageInterface $package)
 	{
 		$packageName = explode('-', $package->getPrettyName());
-		$moduleName  = $packageName[2] . 'Module';
+		$moduleName  = ucfirst($packageName[2]) . 'Module';
 
 		return $this->types[$package->getType()] . '/' . $moduleName;
 	}
